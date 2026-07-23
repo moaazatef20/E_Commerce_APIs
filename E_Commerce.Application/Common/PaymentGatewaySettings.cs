@@ -1,0 +1,12 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace E_Commerce.Application.Common
+{
+    public class PaymentGatewaySettings
+    {
+        public string Secretkey { get; set; } = default!;
+        public string DefaultCurrency { get; set; } = default!;
+    }
+}
