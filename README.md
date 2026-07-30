@@ -1,4 +1,4 @@
-# 🛒 E-Commerce RESTful API
+md_content = """# 🛒 E-Commerce RESTful API
 
 <div align="center">
   <h3>An Enterprise-Level ASP.NET Core Web API Project</h3>
@@ -8,59 +8,70 @@
 
 ---
 
-## 📌 Project Agenda & Overview
-
-This repository contains a robust RESTful API built for an E-Commerce platform. The project is designed with scalability, maintainability, and clean architecture in mind, separating concerns across distinct layers.
-
-### 🛠️ Key Architectural Highlights
-1. **API Fundamentals**: Follows strict RESTful standards (Resource-based endpoints, HTTP verbs, and Stateless JSON responses).
-2. **Onion Architecture**: 
-   * **Domain Layer** (Center): Entities & Contracts (Interfaces). Depends on nothing.
-   * **Application Layer**: Orchestration, Service Interfaces, and DTOs.
-   * **Infrastructure Layer**: EF Core DbContext, Repositories, Migrations, and Data Seeding.
-   * **Presentation Layer (API)**: Web-facing edge, Controllers, and Composition Root (DI).
-3. **Product Module**: The core vertical slice managing the catalog of Products, Brands, and Types.
+## 📌 Project Overview
+A robust, scalable, and fully-featured RESTful API for an E-Commerce platform. The project is designed using **Clean Architecture (Onion Architecture)**, separating concerns across Domain, Application, Infrastructure, and API layers to ensure maximum maintainability and testability.
 
 ---
 
-## 🧅 Architecture Breakdown (The 4 Projects)
+## 🧅 Architecture Breakdown
+The solution is structured into 4 distinct layers ensuring dependencies flow **inward only**:
 
-The solution is split into 4 distinct projects ensuring dependencies flow **inward only**:
+1. **Domain Layer**: Core Entities (`Product`, `Order`, `Basket`) and Contracts (`IGenericRepository`, `IUnitOfWork`). Depends on nothing.
+2. **Application Layer**: Business logic, Service Interfaces, DTOs, and AutoMapper profiles.
+3. **Infrastructure Layer**: EF Core `DbContext`, Data Seeding, Identity, and external services (Stripe, Redis).
+4. **Presentation Layer (API)**: Controllers, Middleware, JWT Authentication, and Composition Root (DI).
 
-```text
-📂 E_Commerce.sln
-├── 📁 E_Commerce.Domain         // 🎯 Entities + Contracts (no dependencies)
-├── 📁 E_Commerce.Application    // ⚙️ Services & DTOs (depends on Domain)
-├── 📁 E_Commerce.Infrastructure // 🗄️ EF Core, Repos, Seeding (depends on Domain & Application)
-└── 📁 E_Commerce.API            // 🌐 Controllers, Program.cs (Composition Root)
-```
-
----
-
-## 📦 Product Module
-
-The Product Module is the first vertical slice of the architecture, handling the core product catalog.
-
-### 🗃️ Entities & Relationships
-* **`Product`**: The core entity (Id, Name, Description, PictureUrl, Price).
-* **`ProductBrand`**: Lookup entity for brands (e.g., Nike, Sony).
-* **`ProductType`**: Lookup entity for categories (e.g., Boards, Hats).
-* **Relationships**: Each `Product` belongs to exactly one `Brand` and one `Type` (One-to-Many).
-
-### 📡 Endpoints (Read-Only)
-
-| Verb   | Route | Description | Response |
-| :--- | :--- | :--- | :--- |
-| **GET** | `/api/products` | Retrieves all products | `200 OK` · `List<Product>` |
-| **GET** | `/api/products/{id}` | Retrieves a specific product by ID | `200 OK` · `Product` or `404 Not Found` |
-| **GET** | `/api/products/brands` | Retrieves all product brands | `200 OK` · `List<ProductBrand>` |
-| **GET** | `/api/products/types`| Retrieves all product types | `200 OK` · `List<ProductType>` |
+### 🛠️ Key Design Patterns
+* **Generic Repository & Unit of Work**: Ensures atomic database transactions and reusable data-access logic.
+* **Specification Pattern**: Encapsulates query logic (filtering, sorting, pagination, and eager loading of related data) to keep repositories clean and flexible.
+* **Data Transfer Objects (DTOs)**: Flattens complex domain models for clean, tailored API responses.
 
 ---
 
-## 💻 Technologies & Concepts Used
-* **ASP.NET Core Web API**
-* **Entity Framework Core** (Fluent API Configurations)
-* **Dependency Injection (DI)**
-* **Repository & Unit of Work Patterns**
-* **Data Seeding**
+## 📦 Core Modules
+
+### 1. Product Module (Catalog)
+Handles the core product catalog, brands, and types using SQL Server.
+* **Features**: Filtering, Searching, dynamic Sorting (Name/Price), and Pagination.
+* **Picture URL Resolver**: Uses AutoMapper to dynamically construct full image URLs based on the hosting environment.
+
+### 2. Basket Module (Shopping Cart)
+Utilizes **Redis** (an in-memory NoSQL data store) for high-speed, temporary shopping cart operations.
+* **Features**: Add/remove items, update quantities.
+* **Time-to-Live (TTL)**: Automatically expires abandoned carts to free up server memory.
+
+### 3. Identity Module (Authentication & Security)
+Built on **ASP.NET Core Identity** and **JWT (JSON Web Tokens)** for stateless authentication.
+* **Features**: User registration, secure login, role-based authorization, and address management.
+* **Security Flow**: Issues a signed JWT upon login, validating it statelessly via the `Authorization` header on subsequent requests. Includes endpoints to check if an email exists and to fetch the current logged-in user.
+
+### 4. Order Module (Checkout)
+Manages the complete ordering process after cart checkout.
+* **Features**: Basket-to-order conversion, server-side price validation (preventing client-side tampering), and delivery method selection.
+* **Composite Entities**: The `Order` entity aggregates `OrderStatus`, `ShippingAddress` (Owned Entity Type), `DeliveryMethod`, and a collection of `OrderItems`.
+
+### 5. Payment Module (Stripe Integration)
+A decoupled module handling highly secure financial transactions via **Stripe**.
+* **PaymentIntent**: Prepares payments by calculating totals server-side, tracking the lifecycle, and returning a secure `ClientSecret` to the frontend.
+* **Webhooks**: Exposes a signature-verified endpoint (`/api/Payments/webhook`) that listens to Stripe events (e.g., `payment_intent.succeeded` or `payment_intent.payment_failed`) to automatically synchronize the Order Status without relying on the client.
+
+### 6. Caching & Performance
+* **Response Caching**: Improves performance and reduces database load.
+* **Action Filters**: Intercepts requests for validation, logging, and caching before or after a controller action executes, keeping business logic clean.
+
+---
+
+## 💻 Technology Stack
+* **Framework**: ASP.NET Core Web API
+* **Database**: SQL Server (Entity Framework Core)
+* **Caching**: Redis
+* **Authentication**: ASP.NET Core Identity & JWT
+* **Payment Gateway**: Stripe API & Webhooks
+* **Mapping**: AutoMapper
+* **Testing & Documentation**: Swagger UI, Postman, and `.http` files
+"""
+
+with open("E_Commerce_API_Presentation.md", "w", encoding="utf-8") as f:
+    f.write(md_content)
+
+print("Updated successfully.")
