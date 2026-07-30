@@ -1,4 +1,4 @@
-md_content = """# 🛒 E-Commerce RESTful API
+# 🛒 E-Commerce RESTful API
 
 <div align="center">
   <h3>An Enterprise-Level ASP.NET Core Web API Project</h3>
@@ -70,8 +70,3 @@ A decoupled module handling highly secure financial transactions via **Stripe**.
 * **Mapping**: AutoMapper
 * **Testing & Documentation**: Swagger UI, Postman, and `.http` files
 """
-
-with open("E_Commerce_API_Presentation.md", "w", encoding="utf-8") as f:
-    f.write(md_content)
-
-print("Updated successfully.")
